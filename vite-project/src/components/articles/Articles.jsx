@@ -8,7 +8,9 @@ const Articles = () => {
 
   useEffect(() => {
     axios
-       .get('http://localhost:3000/articles')
+       .get('http://localhost:3000/articles', {headers: {
+        'Authorization': localStorage.getItem("token") 
+      }})
        .then((response) => {
           setArticles(response.data);
        })
@@ -17,42 +19,6 @@ const Articles = () => {
        });
  }, []);
 
-
-
-  const articles1 = [
-    {
-      title: "myname",
-      user: "hello",
-      description: "this is description",
-      created_at: "12-Aug",
-      updated_at: "12-Aug",
-      categories: ["travel", "sports"],
-    },
-    {
-      title: "myname",
-      user: "hello",
-      description: "this is description",
-      created_at: "12-Aug",
-      updated_at: "12-Aug",
-      categories: ["travel", "sports"],
-    },
-    {
-      title: "myname",
-      user: "hello",
-      description: "this is description",
-      created_at: "12-Aug",
-      updated_at: "12-Aug",
-      categories: ["travel", "sports"],
-    },
-    {
-      title: "myname",
-      user: "hello",
-      description: "this is description",
-      created_at: "12-Aug",
-      updated_at: "12-Aug",
-      categories: ["travel", "sports"],
-    },
-  ];
   return (
     <div>
       <div class="container bg1 row text-center">
@@ -61,17 +27,17 @@ const Articles = () => {
             <div class="blog-card spring-fever">
               <div class="title-content">
                 <h3>
-                  <Link to="/article">{article.title}</Link>
+                  <Link to={`/article/${article.id}`}>{article.title}</Link>
                 </h3>
                 {article.user && (
                   <div class="intro">
-                    <Link to="/user">{article.user}</Link>
+                    <Link to="/user">{article.user.username}</Link>
                   </div>
                 )}
               </div>
               <div class="card-info">
                 <p class="card-text">{article.description}</p>
-                <Link to="/article" className="btn btn-light">
+                <Link to={`/article/${article.id}`} className="btn btn-light">
                   Read Article
                 </Link>
               </div>
@@ -82,11 +48,13 @@ const Articles = () => {
                     {article.created_at} ago, edited {article.updated_at} ago
                   </li>
 
-                  {article.categories && (
+                  {article.categories.length>0 && (
                     <li>
-                      <span class="licon icon-tag"></span>
-                      {article.categories.map((category) => (
-                        <span class="mt-2">{category}</span>
+                      
+                      {article.categories.map((category) => (<>
+                        <span class="licon icon-tag"></span>
+                        <span class="mt-2">{category.name}</span>
+                        </>
                       ))}
                     </li>
                   )}

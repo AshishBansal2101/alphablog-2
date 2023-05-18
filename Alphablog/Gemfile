@@ -11,6 +11,11 @@ gem 'pg'
 
 gem 'rack-cors'
 
+gem 'jwt'
+
+gem 'active_model_serializers'
+
+
 gem 'react-rails', '~> 2.6', '>= 2.6.1'
 # Use Puma as the app server
 gem 'puma', '~> 5.0'

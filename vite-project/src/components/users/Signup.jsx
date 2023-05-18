@@ -1,9 +1,11 @@
-import React, { useState } from "react";
-import { Link} from "react-router-dom";
+import React, { useState,useContext } from "react";
+import { Link, useNavigate} from "react-router-dom";
 import axios from "axios";
+import { AuthContext } from '../../AuthContext';
 
-const Signup = (props) => {
-
+const Signup = () => {
+  const navigate = useNavigate();
+  const { setIsLoggedIn } = useContext(AuthContext);
   const [state, setState] = useState({
     username: "",
     email: "",
@@ -19,6 +21,14 @@ const Signup = (props) => {
   };
 
   const handleSubmit = (event) => {
+    const config = {
+      headers:{
+        "Content-Type":"application/json",
+        Accept:"application/json",
+        Authorization: localStorage.token
+      }
+    };
+
     axios.post("http://localhost:3000/users",{
       user:{
         username: state.username,
@@ -26,17 +36,23 @@ const Signup = (props) => {
         password: state.password,
       },
      
-    },
-    { withCredentials: true}
+    },config,
     ).then(response=>{
-      if(response.data.status==="created"){
-        props.handleSuccessfulAuth(response.data);
+      if(response.data.status =='401'){
+        alert("wrong credentials");
+        navigate("/login");
+      }else{
+        localStorage.setItem("user",JSON.stringify(response.data.user));
+        localStorage.setItem("token",JSON.stringify(response.data.jwt));
+        setIsLoggedIn(true);
+        navigate("/articles");
       }
-      console.log("registration res" , response);
+      
     })
     .catch(error => {
       console.log("registration error", error);
     });
+    navigate("/articles");
     event.preventDefault();
     console.log(state);
   };

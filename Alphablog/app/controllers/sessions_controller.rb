@@ -6,13 +6,16 @@ class SessionsController < ApplicationController
     def create
         user=User.find_by(email:params[:session][:email].downcase)
         if user && user.authenticate(params[:session][:password])
+            token= issue_token(user)
             session[:user_id]=user.id
             # flash[:notice]="Logged In Successfully"
             # redirect_to user
+            p user;
             render json:{
                 status: :created,
                 logged_in: true,
-                user: user
+                user: user,
+                jwt: token
             }
         else
             # flash.now[:alert]=" There was something wrong with your Details"

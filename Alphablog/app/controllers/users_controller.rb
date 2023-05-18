@@ -1,20 +1,42 @@
 class UsersController < ApplicationController
 
-    before_action :set_user,only: [:show, :edit, :update ,:destroy]
-    before_action :require_user,only: [:edit, :update, :destroy]
-    before_action :require_same_user,only: [:edit, :update, :destroy]
+    # before_action :set_user,only: [:show, :edit, :update ,:destroy]
+    # before_action :require_user,only: [:edit, :update, :destroy]
+    # before_action :require_same_user,only: [:edit, :update, :destroy]
 
     def new
         @user=User.new
     end
 
     def show
-        @articles=@user.articles.paginate(page: params[:page], per_page: 4)
+        # @articles=@user.articles.paginate(page: params[:page], per_page: 4)
+        @user=User.find(params[:id])
+        # puts "ashish" ,@user.articles
+        @user=@user.attributes.merge({
+            articles:
+                @user.articles,
+            followers:@user.followers,
+            followings:@user.followings
+          })
+        render :json => @user
     end
 
     def index
-        @users=User.all
+        @user=User.all.map do |item|
+            item.attributes.merge({
+                articles:
+                item.articles,
+            followers:item.followers,
+            followings:item.followings
+            })
+            end 
+        render :json => @user
+
     end
+
+
+
+
         
     def edit
     end
@@ -36,12 +58,13 @@ class UsersController < ApplicationController
             password: params['user']['password']
         )
         if @user
-
+            token=issue_token(@user);
             # flash[:notice]="welcome to alpha blog #{@user.username} , Your account Was Created Successfully"
             session[:user_id]=@user.id
             render json: {
                 status: :created,
-                user: @user
+                user: @user,
+                jwt: token
             }
             # redirect_to articles_path 
         else
@@ -50,18 +73,9 @@ class UsersController < ApplicationController
         end
     end
 
-    def follow
-        @user=User.find(params[:format])
-        current_user.followings<<@user
-        redirect_to users_path
-    end
+    
 
-    def unfollow
-        @user=User.find(params[:format])
-        @unfollow=Follow.where(follower_id: current_user.id ,followed_user_id: @user.id).first
-        @unfollow.destroy
-        redirect_to users_path
-    end
+    
 
     def destroy
         @user.destroy
